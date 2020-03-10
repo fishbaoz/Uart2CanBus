@@ -3,9 +3,10 @@
 
 #include <iostream>
 
+#define OFFLINE_TEST 1
 using namespace std;
 
 void InitCanBus(int fd);
-
+void can_send_raw(int fd, unsigned char *data, unsigned int len);
 
 #endif

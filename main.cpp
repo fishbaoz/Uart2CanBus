@@ -18,7 +18,7 @@ int g_count;
 //串口发送的消息
 unsigned char send_buf[8];
 
-
+//#define OFFLINE_TEST 1
 
 
 int main(int argc, char* argv[])
@@ -30,22 +30,26 @@ int main(int argc, char* argv[])
 
 	struct termios options;
 
+#if OFFLINE_TEST == 0
 	/* 打开串口，返回文件描述符，在此之前必须先给串口写权限，或者直接将用户加入diaout用户组，否则会报错  */
-	fd = open( "/dev/ttyUSB0", O_RDWR|O_NOCTTY|O_NDELAY);
+	fd = open( "/dev/ttyS0", O_RDWR|O_NOCTTY|O_NDELAY);
 
 	if(fd == -1)
 	{
 		perror("uart open failed!");
 		return -1;
 	}
-
+#endif
 	g_count = 0;
 
+#if OFFLINE_TEST == 0
 	serial_setup(fd,&options);
+#endif
 
-	InitCanBus(fd);
-	
+	//InitCanBus(fd);
    
+	can_send_raw(fd, NULL, 0);
+#if 0
 	while(true)
 	{
 		send_buf[0] = g_count%256;
@@ -58,7 +62,9 @@ int main(int argc, char* argv[])
 		send_buf[7] = 0;
 
 		//透传模式下直接使用串口发送数据即可
+#if !OFFLINE_TEST
 		serial_send(fd,send_buf,8);
+#endif
 
 		//每隔1000ms发送一次
 		sleep(1);
@@ -69,7 +75,7 @@ int main(int argc, char* argv[])
 		cout<<"------------------In while----------------------- "<<endl;  
 		cout<<"g_count is "<<g_count<<endl;     
 	}
-
+#endif
 
 	return 0;
 }
